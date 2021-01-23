@@ -1,0 +1,25 @@
+---
+title: "Welcome to data science in R for the NBA"
+description: |
+  For all things data science, NBA and analytics 
+author:
+  - name: Guy Frederick Sutton
+    url: https://example.com/norajones
+    affiliation: 
+    affiliation_url: 
+date: 01-23-2021
+output:
+  distill::distill_article:
+    self_contained: false
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+
+# Learn more about creating blogs with Distill at:
+# https://rstudio.github.io/distill/blog.html
+
+```
+
+
+

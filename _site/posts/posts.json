@@ -1,0 +1,19 @@
+[
+  {
+    "path": "posts/welcome/",
+    "title": "Welcome to data science in R for the NBA",
+    "description": "For all things data science, NBA and analytics",
+    "author": [
+      {
+        "name": "Guy Frederick Sutton",
+        "url": "https://example.com/norajones"
+      }
+    ],
+    "date": "2021-01-23",
+    "categories": [],
+    "contents": "\r\n\r\n\r\n\r\n",
+    "preview": {},
+    "last_modified": "2021-01-23T14:37:37+02:00",
+    "input_file": "welcome.utf8.md"
+  }
+]

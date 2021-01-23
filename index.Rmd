@@ -1,0 +1,5 @@
+---
+title: "NBA Analytics in R"
+site: distill::distill_website
+listing: posts
+---
