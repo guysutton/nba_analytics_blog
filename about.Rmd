@@ -1,26 +1,9 @@
 ---
-title: "About this blog"
-description: |
-  Some additional details about the blog
-output:
-  html_document:
-    df_print: paged
+title: "Guy Frederick Sutton"
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE)
-```
-
-# Guy Frederick Sutton (bio)
-
-* Bachelor's degree from Rhodes University, South Africa in Entomology and Microbiology.
-* Master's degree from Rhodes University, South Africa in Entomology. 
-* Doctorate (just about) from Rhodes University, South Africa (noticing a trend yet?)
-
-## Day job
-
-By day, I work as a Research Entomologist (studying plant-insect interactions) at Rhodes University in South Africa. When I am not rearing insects or debugging `R` code, you will find me hiking, drinking good coffee and on the lookout for the next best eggs benedict around. 
+I am a 28 year old scientific researcher living in South Africa. I graduated with a PhD in Entomology (insects) from Rhodes University (South Africa) in early 2021. My PhD required me to develop my statistical capabilities (having only taken some undergrad stats courses) to build models to predict the outcome of herbivores on plant population dynamics. In the process, I developed a passion for data analysis, statistical modeling and writing code. I have always been avid sports fan, so I hope this blog will be a platform for me to combine my love for sports and data analytics. On the rare occasions when I am not at my day job, writing `R` code or watching sports, you'll find me drinking good coffee and cooking new recipes. 
 
 ## Contact
 
-Please tweet me [`@Guy_F_Sutton`](https://twitter.com/Guy_F_Sutton).
+Want to chat? Feel free to contact me on #[email](mailto:guysutton41@gmail.com), [Twitter](https://twitter.com/Guy_F_Sutton). 

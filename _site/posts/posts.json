@@ -6,14 +6,14 @@
     "author": [
       {
         "name": "Guy Frederick Sutton",
-        "url": "https://example.com/norajones"
+        "url": {}
       }
     ],
     "date": "2021-01-23",
     "categories": [],
-    "contents": "\r\n\r\n\r\n\r\n",
+    "contents": "\r\nI have always been an avid sports fanatic - growing up as a kid in South Africa, sport is just a way of life. Rugby, cricket, football (soccer), golf, tennis, you name it… As I got older, my attention shifted to American football (NFL) and baseball. More recently, I have become a massive NBA fan - who can say no to a massive Jarrett Allen block, or a Giannis dunk?\r\nThis blog will serve as a space for me to combine my love for basketball and data analytics/data science that I have developed over the course of getting a PhD in the sciences. I have about 8 years of experience using the R statistical platform, which has become one of the most popular statistics programmes worldwide. Most of my work will thus be written in R, however, I hope to add to my data analysis skills by learning some new languages and skills (e.g. Julia and SQL).\r\n\r\n\r\n\r\n",
     "preview": {},
-    "last_modified": "2021-01-23T14:43:11+02:00",
+    "last_modified": "2021-01-23T22:21:12+02:00",
     "input_file": {}
   }
 ]
