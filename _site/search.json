@@ -5,14 +5,14 @@
       "title": "Guy Frederick Sutton",
       "author": [],
       "contents": "\r\nI am a 28 year old scientific researcher living in South Africa. I graduated with a PhD in Entomology (insects) from Rhodes University (South Africa) in early 2021. My PhD required me to develop my statistical capabilities (having only taken some undergrad stats courses) to build models to predict the outcome of herbivores on plant population dynamics. In the process, I developed a passion for data analysis, statistical modeling and writing code. I have always been avid sports fan, so I hope this blog will be a platform for me to combine my love for sports and data analytics. On the rare occasions when I am not at my day job, writing R code or watching sports, you’ll find me drinking good coffee and cooking new recipes.\r\nContact\r\nWant to chat? Feel free to contact me on #email, Twitter.\r\n\r\n\r\n\r\n",
-      "last_modified": "2021-01-23T22:21:43+02:00"
+      "last_modified": "2021-01-23T23:01:16+02:00"
     },
     {
       "path": "index.html",
       "title": "NBA Analytics in R",
       "author": [],
       "contents": "\r\n\r\n\r\n\r\n",
-      "last_modified": "2021-01-23T22:21:43+02:00"
+      "last_modified": "2021-01-23T23:01:17+02:00"
     }
   ],
   "collections": ["posts/posts.json"]
