@@ -3,17 +3,17 @@
     {
       "path": "about.html",
       "title": "About this blog",
-      "description": "Some additional details about the blog",
+      "description": "Some additional details about the blog\n",
       "author": [],
-      "contents": "\r\n\r\n\r\n\r\n",
-      "last_modified": "2021-01-23T14:35:32+02:00"
+      "contents": "",
+      "last_modified": "2021-01-23T15:03:03+02:00"
     },
     {
       "path": "index.html",
       "title": "NBA Analytics in R",
       "author": [],
       "contents": "\r\n\r\n\r\n\r\n",
-      "last_modified": "2021-01-23T14:35:33+02:00"
+      "last_modified": "2021-01-23T15:03:04+02:00"
     }
   ],
   "collections": ["posts/posts.json"]

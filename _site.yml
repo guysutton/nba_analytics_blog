@@ -3,6 +3,15 @@ title: "NBA Analytics in R"
 description: |
   Where data analytics meets the NBA
 output_dir: "_site"
+theme: theme.css
+base_url: https://nbaanalyticsR.netlify.app/
+collections:
+  posts:
+    categories: true
+    categories_metadata: true
+    disqus: nba-analytics-in-r
+    share: [twitter, linkedin]
+    subscribe: _subscribe.html
 navbar:
   right:
     - text: "Home"

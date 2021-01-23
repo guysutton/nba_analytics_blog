@@ -2,8 +2,25 @@
 title: "About this blog"
 description: |
   Some additional details about the blog
+output:
+  html_document:
+    df_print: paged
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
 ```
+
+# Guy Frederick Sutton (bio)
+
+* Bachelor's degree from Rhodes University, South Africa in Entomology and Microbiology.
+* Master's degree from Rhodes University, South Africa in Entomology. 
+* Doctorate (just about) from Rhodes University, South Africa (noticing a trend yet?)
+
+## Day job
+
+By day, I work as a Research Entomologist (studying plant-insect interactions) at Rhodes University in South Africa. When I am not rearing insects or debugging `R` code, you will find me hiking, drinking good coffee and on the lookout for the next best eggs benedict around. 
+
+## Contact
+
+Please tweet me [`@Guy_F_Sutton`](https://twitter.com/Guy_F_Sutton).
