@@ -1,0 +1,48 @@
+---
+title: "Do NBA players get tired?"
+description: |
+  NBA players are ATHLETES. But, do they get tired? Does their performance decline late in the game? 
+author:
+  - name: Guy Frederick Sutton
+    url: {}
+date: 01-25-2021
+output:
+  distill::distill_article:
+    self_contained: false
+draft: true
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+It always amazes me watching professional athletes at work. If I had to run, shoot, defend, sprint, turn like that... I would be lying on the floor, gasping for air within the 1st quarter. This got me thinking, do NBA players get tired? Does their performance vary over time? Is their performance as good in the 3rd or 4th quarter as in the 1st quarter? In my first blog post, I will be exploring this question using some basic data visualisations. Later blogposts will get into a bit more detail (building some statistical models) - stay tuned! 
+
+# Load required packages 
+
+The workhorse package we will be using is the NBA stats API package [`nbastatR`](https://github.com/abresler/nbastatR). We need to install the package from GitHub, which only needs to be done once. 
+
+```{r install git package, include = TRUE}
+# To install a GitHub package: 
+devtools::install_github("abresler/nbastatR")
+
+# Once you have downloaded a GitHub package, we should then
+# edit our code so that the package is not re-installed each time we 
+# re-run our script. We place a '#' in front of the command to comment it out. 
+# If we need to run that code again later, we simply remove the '#' 
+# devtools::install_github("abresler/nbastatR")
+```
+
+Our next step is to load the other packages we will require for this analysis. I really like using the `pacman` package to install/load R packages. I find this really helps when sharing code with collaborators who are less familiar with R. They can just open the script and press 'run' and not have to worry about installing new packages. `pacman` will install any packages that are not installed on your machine, and load all the remaining packages. 
+
+```{r, include = TRUE, results = TRUE}
+if (!require("pacman")) install.packages("pacman")
+pacman::p_load(tidyverse, 
+               lubridate,
+               zoo,
+               janitor,
+               nbastatR,
+               future)
+```
+
