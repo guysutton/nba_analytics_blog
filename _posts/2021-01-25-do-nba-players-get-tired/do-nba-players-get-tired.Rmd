@@ -10,6 +10,7 @@ output:
   distill::distill_article:
     self_contained: false
 draft: false
+base_url: https://nbaanalyticsR.netlify.app/
 categories:
   - R
   - tidyverse
