@@ -1,42 +1,22 @@
 ---
-title: "Do NBA players get tired? A case-study of Giannis Antetokounmpo"
+title: "Draft"
 description: |
-  NBA players are ATHLETES. But, do they get tired? Does their performance decline late in the game? 
+  A short description of the post.
 author:
   - name: Guy Frederick Sutton
     url: {}
-date: 01-25-2021
+date: 01-26-2021
 output:
   distill::distill_article:
     self_contained: false
-draft: false
-categories:
-  - R
-  - tidyverse
-  - Data cleaning
-  - ggplot2
-  - Player performance
-  - Milwaukee Bucks
-  - Giannis Antetokounmpo
+draft: true
 ---
-
-
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE)
-```
-
-It always amazes me watching professional athletes at work. If I had to run, shoot, defend, sprint, screen like the NBA pros do... I would be lying on the floor, gasping for air within the 1st quarter. This got me thinking, do NBA players get tired? Does their performance vary over time? Do they make fewer rebounds or field goals the longer they have been on the court? While this is certainly a topic that peeks my interest, there are also some practical implications. For example, it could be quite informative to identify optical performance thresholds for each player to know:
-
-- (1) how long can they perform at their peek abilities per game? (e.g. how many minutes per game is optimal for their performance?), and 
-- (2) how long each stint on court during the game should be to maximise performance? 
-
-In my first blog post, I will be exploring these two questions using some basic data visualisations. Later blogposts will get into a bit more detail (building some statistical models) - stay tuned! 
 
 # Load required packages 
 
 The workhorse package we will be using is the NBA stats API package [`nbastatR`](https://github.com/abresler/nbastatR). We need to install the package from GitHub, which only needs to be done once. 
 
-```{r install git package, include = TRUE, echo = TRUE, warning = FALSE, message = FALSE, results = "hide"}
+```{r install git package, include = TRUE}
 # To install a GitHub package: 
 devtools::install_github("abresler/nbastatR")
 
@@ -72,7 +52,7 @@ theme_set(theme_classic() +
 
 # Downloading play-by-play data 
 
-We will now use the `nbastatR` package to download play-by-play data from the NBA API. We can download data for different seasons, different teams... This can take a really long time (at least it does on my PC), so below, I will just download the data for (1) the 2019/2020 season, and (2) only the Milwaukee Bucks. 
+We will now use the `nbastatR` package to download play-by-play data from the NBA API. We can download data for different seasons, different teams... This can take a really long time (at least it does on my PC), so below, I will just download the data for (1) the 2019/2020 season, and (2) only the New Orleans Pelicans. 
 
 
 ```{r download game logs, echo = TRUE, results = "hide", include = TRUE, warnings = FALSE, messages = FALSE, cache = TRUE}
@@ -94,9 +74,9 @@ games <- game_logs %>%
   dplyr::select(-c(slugTeam, slugOpponent, locationGame)) %>%
   dplyr::distinct(idGame, .keep_all = TRUE) %>%
   # Here, we filter for the teams we want data for 
-  # We have to use team codes. E.g. MIL = Milwaukee Bucks
+  # We have to use team codes. E.g. NOP = New Orleans Pelicans 
   # - Filter the games where either (denoted by the '|' bar) the home or 
-  #   or away team is the Bucks. 
+  #   or away team is the Pelicans. 
   dplyr::filter(slugTeamHome == "MIL" | slugTeamAway == "MIL")
 
 # Extract the play-by-play for each game 
@@ -365,7 +345,7 @@ lineup_game_stats <- lineup_game %>%
                 numberEvent = as.numeric(numberEvent))
 ```
 
-We now have play-by-play data for all the Milwaukee Bucks games for the 2019/2020 season. Each game has a unique ID number (`idGame`), each play within each game has its own unique ID (`numberEvent`), and for each play, we have the players who were on the court for each team (`homeTeamLineup` and `awayTeamLineup`), amongst a range of other variables.  
+We now have play-by-play data for all the New Orleans Pelicans games for the 2019/2020 season. Each game has a unique ID number (`idGame`), each play within each game has its own unique ID (`numberEvent`), and for each play, we have the players who were on the court for each team (`homeTeamLineup` and `awayTeamLineup`), amongst a range of other variables.  
 
 ```{r, comment = NA}
 head(lineup_game_stats)
@@ -692,12 +672,4 @@ The workflow presented above is how I approach exploratory data analysis (EDA) w
 
 #### Practical implications:
 
-Despite taking a very simplistic approach above, we can clearly see that Giannis's performance declines over the course of a game. As fatigue sets in, his numbers drop, *slightly*. After 30 minutes played, his 2PT scoring rate declines to about 0.2 buckets fewer per minute than at the start of the game. This is hardly anything to be concerned about. 
-
-We also saw that for each period Giannis spends on court, his performance tails off ever so slightly after about 7.5 minutes. Intuitively, the data indicates that to optimise Giannis's performance, he should be used in short, frequent bursts on the court (< 5-6 mins per stint on court). 
-
-
-
-
-
-
+Despite taking a very simplistic approach above, we can clearly see that Giannis's performance declines over so slightly over the course of a game. As fatigue sets in, his numbers drop, *slightly*. After 30 minutes played, his 2PT scoring rate does declines by about 0.2 buckets per minute. This is hardly anything to be concerned about. We also saw that for each period Giannis spends on court, his performance tails off ever so slightly after about 7.5 minutes. Intuitively, the data indicates that to optimise Giannis's performance, he should be used in short, frequent bursts on the court (< 5-6 mins per stint on court). 

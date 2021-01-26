@@ -18,8 +18,8 @@ navbar:
       href: index.html
     - text: "About"
       href: about.html
-    - text: "CV"
-      href: https://github.com/guysutton/cv/blob/master/script_make_cv.pdf
+   # - text: "CV"
+   #    href: https://github.com/guysutton/cv/blob/master/script_make_cv.pdf
     - icon: fa fa-twitter
       href: https://twitter.com/Guy_F_Sutton
     - icon: fa fa-github

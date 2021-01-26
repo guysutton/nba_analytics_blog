@@ -7,7 +7,23 @@
     <description>Where data analytics meets the NBA
 </description>
     <generator>Distill</generator>
-    <lastBuildDate>Sat, 23 Jan 2021 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sun, 24 Jan 2021 00:00:00 +0000</lastBuildDate>
+    <item>
+      <title>Do NBA players get tired? A case-study of Giannis Antetokounmpo</title>
+      <dc:creator>Guy Frederick Sutton</dc:creator>
+      <link>https://nbaanalyticsR.netlify.app/posts/2021-01-25-do-nba-players-get-tired</link>
+      <description>NBA players are ATHLETES. But, do they get tired? Does their performance decline late in the game?</description>
+      <category>R</category>
+      <category>tidyverse</category>
+      <category>Data cleaning</category>
+      <category>ggplot2</category>
+      <category>Player performance</category>
+      <category>Milwaukee Bucks</category>
+      <category>Giannis Antetokounmpo</category>
+      <guid>https://nbaanalyticsR.netlify.app/posts/2021-01-25-do-nba-players-get-tired</guid>
+      <pubDate>Sun, 24 Jan 2021 00:00:00 +0000</pubDate>
+      <media:content url="https://nbaanalyticsR.netlify.app/posts/2021-01-25-do-nba-players-get-tired/do-nba-players-get-tired_files/figure-html5/giannis rebounds per stint-1.png" medium="image" type="image/png" width="1248" height="768"/>
+    </item>
     <item>
       <title>Welcome to data science in R for the NBA</title>
       <dc:creator>Guy Frederick Sutton</dc:creator>

@@ -1,0 +1,77 @@
+---
+title: "Add player headshot to ggplot graph"
+description: |
+  A short description of the post.
+author:
+  - name: Guy Frederick Sutton
+    url: {}
+date: 01-25-2021
+output:
+  distill::distill_article:
+    self_contained: false
+draft: true
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+
+```{r, include = TRUE}
+if (!require("pacman")) install.packages("pacman")
+pacman::p_load(tidyverse, 
+               lubridate,
+               zoo,
+               janitor,
+               nbastatR,
+               future,
+               grid,
+               jpeg,
+               gridExtra,
+               cowplot,
+               magick)
+```
+
+
+```{r}
+# Scrape headshot for player 
+playerImg.URL <- df_nba_player_dict %>%
+  dplyr::filter(namePlayer == "Jrue Holiday") %>%
+  dplyr::pull(urlPlayerPhoto)
+playerImg.URL
+playerImg <- rasterGrob(png::readPNG(RCurl::getURLContent(playerImg.URL)), 
+                                                    width=unit(0.15, "npc"), height=unit(0.15, "npc"))
+
+```
+
+```{r}
+graph1 <- perform_stint_min %>%
+  dplyr::mutate(stints_on_court = as.factor(stints_on_court)) %>%
+  dplyr::mutate(minute_cats = readr::parse_double(minute_cats)) %>%
+  dplyr::filter(playerNames == "Jrue Holiday") %>%
+  ggplot(data = ., aes(x = minute_cats, 
+                       y = n_rebounds,
+                       group = stints_on_court,
+                       colour = stints_on_court)) +
+  geom_smooth(aes(fill = stints_on_court),
+              alpha = 0.3) +
+  labs(x = "Minutes on court (mins)",
+       y = "No. of rebounds \n(per minute)") +
+  facet_wrap(~ stints_on_court, ncol = 5) +
+  theme(plot.margin = unit(c(1,5,1,1), "cm"))
+graph1
+
+ggdraw() + 
+  draw_plot(graph1) +
+  draw_image(
+    playerImg.URL, 
+    x = 1, 
+    y = 0.9, 
+    hjust = 1, 
+    vjust = 1, 
+    halign = 1, 
+    valign = 1,
+    width = 0.15
+  )
+```
