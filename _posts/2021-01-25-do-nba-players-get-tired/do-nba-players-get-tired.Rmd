@@ -664,7 +664,7 @@ Giannis gets plenty of rebounds throughout the game, but the rate at which he re
 
 ### (ii) Number of 2PT FG's made per game 
 
-```{r giannis 2pt total minutes, warning = FALSE, message = FALSE, echo = TRUE}
+```{r giannis 2pt total minutes, warning = FALSE, message = FALSE, echo = TRUE,preview = TRUE}
 perform_stint_game %>%
   #dplyr::mutate(stints_on_court = as.factor(stints_on_court)) %>%
   #dplyr::mutate(total_m = readr::parse_double(minute_cats)) %>%
