@@ -58,7 +58,8 @@ pacman::p_load(tidyverse,
                zoo,
                janitor,
                nbastatR,
-               future)
+               future,
+               scales)
 ```
 
 ```{r set ggplot theme, include = FALSE, echo = TRUE, results = "hide"}
@@ -518,6 +519,8 @@ Finally, the bit of the analysis that we are actually most interested in. Let's 
 ```{r, warning = FALSE, message = FALSE, echo = TRUE, results = "hide"}
 perform_stint_min <- events_defined %>%
   dplyr::ungroup() %>%
+  dplyr::filter(playerNames == "Giannis Antetokounmpo") %>%
+  dplyr::filter(namePlayer1 == "Giannis Antetokounmpo") %>%
   dplyr::group_by(playerNames, idGame, stints_on_court, minute_cats, .drop = FALSE) %>%
   dplyr::summarise(
     total_rebounds = sum(is_rebound, na.rm = TRUE),
@@ -545,6 +548,7 @@ perform_stint_min <- events_defined %>%
     n = n()) %>%
   # Filter to keep only stints with n => 10 per player
   dplyr::filter(!n < 9)
+perform_stint_min
 ```
 
 Let's take a quick look at the structure of our data now. 
@@ -563,29 +567,29 @@ Below, we create a very simple `ggplot` visualisation of the average number of r
 perform_stint_min %>%
   dplyr::mutate(stints_on_court = as.factor(stints_on_court)) %>%
   dplyr::mutate(minute_cats = readr::parse_double(minute_cats)) %>%
-  dplyr::filter(playerNames == "Giannis Antetokounmpo") %>%
   ggplot(data = ., aes(x = minute_cats, 
                        y = n_rebounds,
                        group = stints_on_court,
                        colour = stints_on_court)) +
   geom_smooth(aes(fill = stints_on_court),
               alpha = 0.3) +
+   scale_y_continuous(limit=c(0,3),oob=squish) +
+  #scale_y_continuous(limits = c(0, 2)) +
   labs(x = "Minutes on court (mins)",
        y = "No. of rebounds \n(per minute)",
-       title = "Giannis Antetokounmpo gets less rebounds the longer he is on court",
-       subtitle = "Each panel represents successive periods/stints that he was on the court") +
+       subtitle = "Each panel represents a period/stint that he was on the court") +
   facet_wrap(~ stints_on_court, ncol = 3)
 ```
 
-Inspecting the panels clearly shows some decline in Giannis's rebounding stats the longer he is on court. After about 5 - 7.5 mins on court, Giannis makes fewer rebounds. This does not mean his performance is poor - even in later stints on the court, he is still getting more than 1 rebound per minute, on average. What an athlete! 
+Giannis seems to rebound really consistently. There is no apparent decline in rebounding rate the longer he is on the court.
 
 ### (ii) Number of 2PT FG's made per game 
 
 ```{r giannis 2pt fg per stint, warning = FALSE, message = FALSE, echo = TRUE}
 perform_stint_min %>%
-  dplyr::mutate(stints_on_court = as.factor(stints_on_court)) %>%
+  #dplyr::mutate(stints_on_court = as.factor(stints_on_court)) %>%
   dplyr::mutate(minute_cats = readr::parse_double(minute_cats)) %>%
-  dplyr::filter(playerNames == "Giannis Antetokounmpo") %>%
+  dplyr::filter(stints_on_court < 6) %>%
   ggplot(data = ., aes(x = minute_cats, 
                        y = n_2pt_made,
                        group = stints_on_court,
@@ -594,16 +598,15 @@ perform_stint_min %>%
               alpha = 0.3) +
   labs(x = "Minutes on court (mins)",
        y = "No. of 2PT FG made \n(per minute)",
-       title = "Giannis makes (slightly) fewer 2PT buckets the longer he is on court",
-       subtitle = "Each panel represents successive periods/stints that he was on the court") +
+       subtitle = "Each panel represents a period/stint that he was on the court") +
   facet_wrap(~ stints_on_court, ncol = 3)
 ```
 
-Giannis seems to make slightly fewer 2PT field goals the longer he is on the court. This effect is not very pronounced, except when Giannis has been on court for longer that about 8 - 10 mins (see Panel 3 and 4 specifically). Again, even at his worst average 2PT scoring rates, Giannis scores a bucket every 2 minutes (i.e. 1 PT per min)... It is no surprise that Giannis is closing in on 11 000 points for the Bucks at only 26 years old.  
+Giannis seems to make 2PT field goals quite consistently. There is no apparent decline in scoring rate the longer he is on the court. It is no surprise that Giannis is closing in on 11 000 points for the Bucks at only 26 years old.  
 
 # How many minutes should Giannis play per game? 
 
-Above we looked at Giannis's performance (no. rebounds and 2PT scoring) per minute player during successive stints on court. This data could help us to determine how long Giannis could be expected to perform at his peek capacity for each stint he has on court. However, what if we wanted to see how many minutes Giannis should be playing per game to maximise performance? 
+Above we looked at Giannis's performance (no. rebounds and 2PT scoring) per minute player during successive stints on court. This data could help us to determine how long Giannis could be expected to perform at his peak capacity for each stint he has on court (hint: his performance doesn't decline over time). However, what if we wanted to see how many minutes Giannis should be playing per game to maximise performance? 
 
 ### (i) Number of rebounds 
 
@@ -611,6 +614,8 @@ Above we looked at Giannis's performance (no. rebounds and 2PT scoring) per minu
 # Calculate mean rebounds and 2PT's made per minute over the entire game 
 perform_stint_game <- events_defined %>%
   dplyr::ungroup() %>%
+  dplyr::filter(playerNames == "Giannis Antetokounmpo") %>%
+  dplyr::filter(namePlayer1 == "Giannis Antetokounmpo") %>%
   dplyr::group_by(playerNames, idGame, stints_on_court, minute_cats, .drop = FALSE) %>%
   dplyr::summarise(
     total_rebounds = sum(is_rebound, na.rm = TRUE),
@@ -650,22 +655,18 @@ perform_stint_game <- events_defined %>%
 
 ```{r giannis rebounds total minutes, warning = FALSE, message = FALSE, echo = TRUE}
 perform_stint_game %>%
-  #dplyr::mutate(stints_on_court = as.factor(stints_on_court)) %>%
-  #dplyr::mutate(total_m = readr::parse_double(minute_cats)) %>%
-  dplyr::filter(playerNames == "Giannis Antetokounmpo") %>%
   ggplot(data = ., aes(x = total_minutes_game, 
                        y = n_rebounds)) +
   geom_smooth(colour = "black") +
   labs(x = "Total minutes played (mins)",
-       y = "No. of rebounds \n(per minute)",
-       title = "Giannis Antetokounmpo gets fewer rebounds the longer he is on court") 
+       y = "No. of rebounds \n(per minute)") 
 ```
 
-Giannis gets plenty of rebounds throughout the game, but the rate at which he rebounds does decrease over the course of the game. After 30 minutes, he is still getting about 1.75 rebounds per minute. I don't think there is anything to worry about in terms of a drop in performance here... 
+Giannis gets plenty of rebounds throughout the game, but the rate at which he rebounds does decrease over the course of the game, but increases in the last 10 minutes. There is a small lull in rebounding (<0.1 fewer rebounds) after 10 - 20 minutes on court versus his first 10 minutes. All things considered, Giannis's rebounding rate is pretty consistent over an entire game.
 
 ### (ii) Number of 2PT FG's made per game 
 
-```{r giannis 2pt total minutes, warning = FALSE, message = FALSE, echo = TRUE,preview = TRUE}
+```{r giannis 2pt total minutes, warning = FALSE, message = FALSE, echo = TRUE, preview = TRUE}
 perform_stint_game %>%
   #dplyr::mutate(stints_on_court = as.factor(stints_on_court)) %>%
   #dplyr::mutate(total_m = readr::parse_double(minute_cats)) %>%
@@ -674,28 +675,25 @@ perform_stint_game %>%
                        y = n_2pt_made)) +
   geom_smooth(colour = "black") +
   labs(x = "Total minutes played (mins)",
-       y = "No. of 2PT FG's made \n(per minute)",
-       title = "Giannis Antetokounmpo makes fewer 2PT's the longer he is on court") 
+       y = "No. of 2PT FG's made \n(per minute)") 
 ```
 
-Giannis can maintain his optimal 2PT scoring rates for about 20 minutes. Thereafter, the number of 2PT buckets scores declines steadily between 20 - 30 minutes played, albeit we must note that Giannis only scores about 0.2 buckets fewer after he has played 30 minutes than when he is fresh (0 - 10 minutes played).
+Giannis can clearly maintain his optimal 2PT scoring rate over the duration of an entire game.  
 
-# What have we leart today?
+# What R skills did we learn today?
 
 - Download NBA play-by-play data from the NBA API
-- Process the data using `tidyverse` cleaning packages (e.g. `dplyr`, `tidyr`, `stringr`)
+- Process the data using common `tidyverse` cleaning packages (e.g. `dplyr`, `tidyr`, `stringr`)
 - Create simple `ggplot` graphics to visualise player performance over time
-- Exploratory analyses suggest that Giannis's performance does decline slightly the longer he has been on court.
+
 
 #### Analytics implications:
 
-The workflow presented above is how I approach exploratory data analysis (EDA) when building predictive models. I like to invest a lot of time into my EDA to get a really good understanding of the underlying data I am working with. In terms of model building, I like to, wherever possible, only include predictor variables that appear to have some justifiable relationship with whatever our response variable is. For example, if we were trying to build a model to predict how many points Giannis will score per game, our EDA here clearly shows that the number of minutes player per game MAY be an important predictor. 
+The workflow presented above is how I approach exploratory data analysis (EDA) when building predictive models. I like to invest a lot of time into my EDA to get a really good understanding of the underlying data I am working with. In terms of model building, I like to only include predictor variables that appear to have some justifiable relationship with whatever our response variable is. Moreover, I like to have some idea of what form the function of y ~ x should take. For example, if we were trying to build a model to predict how many points Giannis will score per game, our EDA suggests that a linear relationship between minutes played per game and number of 2PT field goals *MAY* be appropriate. If we had found evidence that his 2PT scoring rate declines over time, we would then want to fit a non-linear trend for this relationship. There was a small dip in scoring rates in the 10 - 20 minute period, so we still may want a non-linear term in our model, but we could start with a linear term and build from there. 
 
 #### Practical implications:
 
-Despite taking a very simplistic approach above, we can clearly see that Giannis's performance declines over the course of a game. As fatigue sets in, his numbers drop, *slightly*. After 30 minutes played, his 2PT scoring rate declines to about 0.2 buckets fewer per minute than at the start of the game. This is hardly anything to be concerned about. 
-
-We also saw that for each period Giannis spends on court, his performance tails off ever so slightly after about 7.5 minutes. Intuitively, the data indicates that to optimise Giannis's performance, he should be used in short, frequent bursts on the court (< 5-6 mins per stint on court). 
+Giannis's performance is consistent over the course of a game. There is no obvious drop-off in his rebounding rate or 2PT scoring rates, both with respect to how many minutes he plays in each game, and with respect to how many stints on court he has and how long each stint is. It would be interesting to see how he performs above 35+ minutes per game... 
 
 
 

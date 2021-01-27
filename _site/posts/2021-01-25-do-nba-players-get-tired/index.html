@@ -101,14 +101,20 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
 <meta property="og:type" content="article"/>
 <meta property="og:description" content="NBA players are ATHLETES. But, do they get tired? Does their performance decline late in the game?"/>
 <meta property="og:url" content="https://nbaanalyticsR.netlify.app/posts/2021-01-25-do-nba-players-get-tired/"/>
+<meta property="og:image" content="https://nbaanalyticsR.netlify.app/posts/2021-01-25-do-nba-players-get-tired/do-nba-players-get-tired_files/figure-html5/giannis 2pt total minutes-1.png"/>
+<meta property="og:image:width" content="1248"/>
+<meta property="og:image:height" content="768"/>
 <meta property="og:locale" content="en_US"/>
 <meta property="og:site_name" content="NBA Analytics in R"/>
 
 <!--  https://dev.twitter.com/cards/types/summary -->
-<meta property="twitter:card" content="summary"/>
+<meta property="twitter:card" content="summary_large_image"/>
 <meta property="twitter:title" content="NBA Analytics in R: Do NBA players get tired? A case-study of Giannis Antetokounmpo"/>
 <meta property="twitter:description" content="NBA players are ATHLETES. But, do they get tired? Does their performance decline late in the game?"/>
 <meta property="twitter:url" content="https://nbaanalyticsR.netlify.app/posts/2021-01-25-do-nba-players-get-tired/"/>
+<meta property="twitter:image" content="https://nbaanalyticsR.netlify.app/posts/2021-01-25-do-nba-players-get-tired/do-nba-players-get-tired_files/figure-html5/giannis 2pt total minutes-1.png"/>
+<meta property="twitter:image:width" content="1248"/>
+<meta property="twitter:image:height" content="768"/>
 
 <!--  https://scholar.google.com/intl/en/scholar/inclusion.html#indexing -->
 <meta name="citation_title" content="NBA Analytics in R: Do NBA players get tired? A case-study of Giannis Antetokounmpo"/>
@@ -2490,7 +2496,8 @@ d-appendix d-footnote-list a.footnote-backlink {
                <span class='va'>zoo</span>,
                <span class='va'>janitor</span>,
                <span class='va'>nbastatR</span>,
-               <span class='va'>future</span><span class='op'>)</span>
+               <span class='va'>future</span>,
+               <span class='va'>scales</span><span class='op'>)</span>
 </code></pre>
 </div>
 </div>
@@ -2654,6 +2661,8 @@ d-appendix d-footnote-list a.footnote-backlink {
 <div class="sourceCode">
 <pre class="sourceCode r"><code class="sourceCode r"><span class='va'>perform_stint_min</span> <span class='op'>&lt;-</span> <span class='va'>events_defined</span> <span class='op'>%&gt;%</span>
   <span class='fu'>dplyr</span><span class='fu'>::</span><span class='fu'><a href='https://dplyr.tidyverse.org/reference/group_by.html'>ungroup</a></span><span class='op'>(</span><span class='op'>)</span> <span class='op'>%&gt;%</span>
+  <span class='fu'>dplyr</span><span class='fu'>::</span><span class='fu'><a href='https://dplyr.tidyverse.org/reference/filter.html'>filter</a></span><span class='op'>(</span><span class='va'>playerNames</span> <span class='op'>==</span> <span class='st'>"Giannis Antetokounmpo"</span><span class='op'>)</span> <span class='op'>%&gt;%</span>
+  <span class='fu'>dplyr</span><span class='fu'>::</span><span class='fu'><a href='https://dplyr.tidyverse.org/reference/filter.html'>filter</a></span><span class='op'>(</span><span class='va'>namePlayer1</span> <span class='op'>==</span> <span class='st'>"Giannis Antetokounmpo"</span><span class='op'>)</span> <span class='op'>%&gt;%</span>
   <span class='fu'>dplyr</span><span class='fu'>::</span><span class='fu'><a href='https://dplyr.tidyverse.org/reference/group_by.html'>group_by</a></span><span class='op'>(</span><span class='va'>playerNames</span>, <span class='va'>idGame</span>, <span class='va'>stints_on_court</span>, <span class='va'>minute_cats</span>, .drop <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>%&gt;%</span>
   <span class='fu'>dplyr</span><span class='fu'>::</span><span class='fu'><a href='https://dplyr.tidyverse.org/reference/summarise.html'>summarise</a></span><span class='op'>(</span>
     total_rebounds <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/sum.html'>sum</a></span><span class='op'>(</span><span class='va'>is_rebound</span>, na.rm <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>,
@@ -2681,26 +2690,27 @@ d-appendix d-footnote-list a.footnote-backlink {
     n <span class='op'>=</span> <span class='fu'>n</span><span class='op'>(</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>%&gt;%</span>
   <span class='co'># Filter to keep only stints with n =&gt; 10 per player</span>
   <span class='fu'>dplyr</span><span class='fu'>::</span><span class='fu'><a href='https://dplyr.tidyverse.org/reference/filter.html'>filter</a></span><span class='op'>(</span><span class='op'>!</span><span class='va'>n</span> <span class='op'>&lt;</span> <span class='fl'>9</span><span class='op'>)</span>
+<span class='va'>perform_stint_min</span>
 </code></pre>
 </div>
 </div>
 <p>Let’s take a quick look at the structure of our data now.</p>
 <div class="layout-chunk" data-layout="l-body">
-<pre><code>Rows: 476
+<pre><code>Rows: 46
 Columns: 12
-Groups: playerNames, stints_on_court [1,500]
-$ playerNames     &lt;chr&gt; &quot;Brook Lopez&quot;, &quot;Brook Lopez&quot;, &quot;Brook Lope...
-$ stints_on_court &lt;dbl&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2,...
+Groups: playerNames, stints_on_court [7]
+$ playerNames     &lt;chr&gt; &quot;Giannis Antetokounmpo&quot;, &quot;Giannis Antetok...
+$ stints_on_court &lt;dbl&gt; 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2,...
 $ minute_cats     &lt;chr&gt; &quot;1&quot;, &quot;2&quot;, &quot;3&quot;, &quot;4&quot;, &quot;5&quot;, &quot;6&quot;, &quot;7&quot;, &quot;8&quot;, &quot;...
-$ n_rebounds      &lt;dbl&gt; 1.661765, 2.529412, 2.264706, 2.132353, 2...
-$ n_2pt_made      &lt;dbl&gt; 0.9558824, 1.0588235, 1.1617647, 1.220588...
-$ n_3pt_made      &lt;dbl&gt; 0.5000000, 0.5441176, 0.7647059, 0.602941...
-$ n_ft_attempt    &lt;dbl&gt; 0.3088235, 0.5294118, 0.2647059, 0.397058...
-$ sd_rebounds     &lt;dbl&gt; 1.1409644, 1.4296497, 1.2170143, 1.291815...
-$ sd_2pt_made     &lt;dbl&gt; 0.9373482, 0.8789810, 0.9713861, 0.895187...
-$ sd_3pt_made     &lt;dbl&gt; 0.6108472, 0.7616522, 0.8484867, 0.715285...
-$ sd_ft_attempt   &lt;dbl&gt; 0.6523746, 0.8889133, 0.7043076, 0.812949...
-$ n               &lt;int&gt; 68, 68, 68, 68, 68, 65, 51, 41, 15, 68, 6...</code></pre>
+$ n_rebounds      &lt;dbl&gt; 0.5641026, 0.7708333, 0.4509804, 0.560000...
+$ n_2pt_made      &lt;dbl&gt; 0.3589744, 0.3541667, 0.4117647, 0.500000...
+$ n_3pt_made      &lt;dbl&gt; 0.02564103, 0.08333333, 0.15686275, 0.020...
+$ n_ft_attempt    &lt;dbl&gt; 0.17948718, 0.10416667, 0.11764706, 0.100...
+$ sd_rebounds     &lt;dbl&gt; 0.5980174, 0.5921322, 0.6422998, 0.611455...
+$ sd_2pt_made     &lt;dbl&gt; 0.5374001, 0.5255021, 0.5357787, 0.646813...
+$ sd_3pt_made     &lt;dbl&gt; 0.1601282, 0.2793102, 0.3672900, 0.141421...
+$ sd_ft_attempt   &lt;dbl&gt; 0.5063697, 0.4721875, 0.4311408, 0.303045...
+$ n               &lt;int&gt; 39, 48, 51, 50, 48, 37, 24, 16, 45, 46, 4...</code></pre>
 </div>
 <h1 id="how-many-minutes-should-giannis-play-per-stint-on-court">How many minutes should Giannis play per stint on court?</h1>
 <p>Below, we create a very simple <code>ggplot</code> visualisation of the average number of rebounds effected per minute by Giannis Antetokounmpo for each period/stint that he was on the court over the 2020 season. A nice little <em>trick</em> that I have been using in recent months is to use <code>geom_smooth</code> instead of <code>geom_line</code> or <code>geom_point</code> to visualise the relationship between two continuous variables. This is by no means meant to be a predictive model - this is simply an exploratory data analysis (EDA) exercise.</p>
@@ -2710,30 +2720,30 @@ $ n               &lt;int&gt; 68, 68, 68, 68, 68, 65, 51, 41, 15, 68, 6...</code
 <pre class="sourceCode r"><code class="sourceCode r"><span class='va'>perform_stint_min</span> <span class='op'>%&gt;%</span>
   <span class='fu'>dplyr</span><span class='fu'>::</span><span class='fu'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='op'>(</span>stints_on_court <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/factor.html'>as.factor</a></span><span class='op'>(</span><span class='va'>stints_on_court</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>%&gt;%</span>
   <span class='fu'>dplyr</span><span class='fu'>::</span><span class='fu'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='op'>(</span>minute_cats <span class='op'>=</span> <span class='fu'>readr</span><span class='fu'>::</span><span class='fu'><a href='https://readr.tidyverse.org/reference/parse_atomic.html'>parse_double</a></span><span class='op'>(</span><span class='va'>minute_cats</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>%&gt;%</span>
-  <span class='fu'>dplyr</span><span class='fu'>::</span><span class='fu'><a href='https://dplyr.tidyverse.org/reference/filter.html'>filter</a></span><span class='op'>(</span><span class='va'>playerNames</span> <span class='op'>==</span> <span class='st'>"Giannis Antetokounmpo"</span><span class='op'>)</span> <span class='op'>%&gt;%</span>
   <span class='fu'>ggplot</span><span class='op'>(</span>data <span class='op'>=</span> <span class='va'>.</span>, <span class='fu'>aes</span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>minute_cats</span>, 
                        y <span class='op'>=</span> <span class='va'>n_rebounds</span>,
                        group <span class='op'>=</span> <span class='va'>stints_on_court</span>,
                        colour <span class='op'>=</span> <span class='va'>stints_on_court</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>+</span>
   <span class='fu'>geom_smooth</span><span class='op'>(</span><span class='fu'>aes</span><span class='op'>(</span>fill <span class='op'>=</span> <span class='va'>stints_on_court</span><span class='op'>)</span>,
               alpha <span class='op'>=</span> <span class='fl'>0.3</span><span class='op'>)</span> <span class='op'>+</span>
+   <span class='fu'>scale_y_continuous</span><span class='op'>(</span>limit<span class='op'>=</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>0</span>,<span class='fl'>3</span><span class='op'>)</span>,oob<span class='op'>=</span><span class='va'>squish</span><span class='op'>)</span> <span class='op'>+</span>
+  <span class='co'>#scale_y_continuous(limits = c(0, 2)) +</span>
   <span class='fu'>labs</span><span class='op'>(</span>x <span class='op'>=</span> <span class='st'>"Minutes on court (mins)"</span>,
        y <span class='op'>=</span> <span class='st'>"No. of rebounds \n(per minute)"</span>,
-       title <span class='op'>=</span> <span class='st'>"Giannis Antetokounmpo gets less rebounds the longer he is on court"</span>,
-       subtitle <span class='op'>=</span> <span class='st'>"Each panel represents successive periods/stints that he was on the court"</span><span class='op'>)</span> <span class='op'>+</span>
+       subtitle <span class='op'>=</span> <span class='st'>"Each panel represents a period/stint that he was on the court"</span><span class='op'>)</span> <span class='op'>+</span>
   <span class='fu'>facet_wrap</span><span class='op'>(</span><span class='op'>~</span> <span class='va'>stints_on_court</span>, ncol <span class='op'>=</span> <span class='fl'>3</span><span class='op'>)</span>
 </code></pre>
 </div>
 <p><img src="do-nba-players-get-tired_files/figure-html5/giannis%20rebounds%20per%20stint-1.png" width="624" /></p>
 </div>
-<p>Inspecting the panels clearly shows some decline in Giannis’s rebounding stats the longer he is on court. After about 5 - 7.5 mins on court, Giannis makes fewer rebounds. This does not mean his performance is poor - even in later stints on the court, he is still getting more than 1 rebound per minute, on average. What an athlete!</p>
+<p>Giannis seems to rebound really consistently. There is no apparent decline in rebounding rate the longer he is on the court.</p>
 <h3 id="ii-number-of-2pt-fgs-made-per-game">(ii) Number of 2PT FG’s made per game</h3>
 <div class="layout-chunk" data-layout="l-body">
 <div class="sourceCode">
 <pre class="sourceCode r"><code class="sourceCode r"><span class='va'>perform_stint_min</span> <span class='op'>%&gt;%</span>
-  <span class='fu'>dplyr</span><span class='fu'>::</span><span class='fu'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='op'>(</span>stints_on_court <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/factor.html'>as.factor</a></span><span class='op'>(</span><span class='va'>stints_on_court</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>%&gt;%</span>
+  <span class='co'>#dplyr::mutate(stints_on_court = as.factor(stints_on_court)) %&gt;%</span>
   <span class='fu'>dplyr</span><span class='fu'>::</span><span class='fu'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='op'>(</span>minute_cats <span class='op'>=</span> <span class='fu'>readr</span><span class='fu'>::</span><span class='fu'><a href='https://readr.tidyverse.org/reference/parse_atomic.html'>parse_double</a></span><span class='op'>(</span><span class='va'>minute_cats</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>%&gt;%</span>
-  <span class='fu'>dplyr</span><span class='fu'>::</span><span class='fu'><a href='https://dplyr.tidyverse.org/reference/filter.html'>filter</a></span><span class='op'>(</span><span class='va'>playerNames</span> <span class='op'>==</span> <span class='st'>"Giannis Antetokounmpo"</span><span class='op'>)</span> <span class='op'>%&gt;%</span>
+  <span class='fu'>dplyr</span><span class='fu'>::</span><span class='fu'><a href='https://dplyr.tidyverse.org/reference/filter.html'>filter</a></span><span class='op'>(</span><span class='va'>stints_on_court</span> <span class='op'>&lt;</span> <span class='fl'>6</span><span class='op'>)</span> <span class='op'>%&gt;%</span>
   <span class='fu'>ggplot</span><span class='op'>(</span>data <span class='op'>=</span> <span class='va'>.</span>, <span class='fu'>aes</span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>minute_cats</span>, 
                        y <span class='op'>=</span> <span class='va'>n_2pt_made</span>,
                        group <span class='op'>=</span> <span class='va'>stints_on_court</span>,
@@ -2742,16 +2752,15 @@ $ n               &lt;int&gt; 68, 68, 68, 68, 68, 65, 51, 41, 15, 68, 6...</code
               alpha <span class='op'>=</span> <span class='fl'>0.3</span><span class='op'>)</span> <span class='op'>+</span>
   <span class='fu'>labs</span><span class='op'>(</span>x <span class='op'>=</span> <span class='st'>"Minutes on court (mins)"</span>,
        y <span class='op'>=</span> <span class='st'>"No. of 2PT FG made \n(per minute)"</span>,
-       title <span class='op'>=</span> <span class='st'>"Giannis makes (slightly) fewer 2PT buckets the longer he is on court"</span>,
-       subtitle <span class='op'>=</span> <span class='st'>"Each panel represents successive periods/stints that he was on the court"</span><span class='op'>)</span> <span class='op'>+</span>
+       subtitle <span class='op'>=</span> <span class='st'>"Each panel represents a period/stint that he was on the court"</span><span class='op'>)</span> <span class='op'>+</span>
   <span class='fu'>facet_wrap</span><span class='op'>(</span><span class='op'>~</span> <span class='va'>stints_on_court</span>, ncol <span class='op'>=</span> <span class='fl'>3</span><span class='op'>)</span>
 </code></pre>
 </div>
 <p><img src="do-nba-players-get-tired_files/figure-html5/giannis%202pt%20fg%20per%20stint-1.png" width="624" /></p>
 </div>
-<p>Giannis seems to make slightly fewer 2PT field goals the longer he is on the court. This effect is not very pronounced, except when Giannis has been on court for longer that about 8 - 10 mins (see Panel 3 and 4 specifically). Again, even at his worst average 2PT scoring rates, Giannis scores a bucket every 2 minutes (i.e. 1 PT per min)… It is no surprise that Giannis is closing in on 11 000 points for the Bucks at only 26 years old.</p>
+<p>Giannis seems to make 2PT field goals quite consistently. There is no apparent decline in scoring rate the longer he is on the court. It is no surprise that Giannis is closing in on 11 000 points for the Bucks at only 26 years old.</p>
 <h1 id="how-many-minutes-should-giannis-play-per-game">How many minutes should Giannis play per game?</h1>
-<p>Above we looked at Giannis’s performance (no. rebounds and 2PT scoring) per minute player during successive stints on court. This data could help us to determine how long Giannis could be expected to perform at his peek capacity for each stint he has on court. However, what if we wanted to see how many minutes Giannis should be playing per game to maximise performance?</p>
+<p>Above we looked at Giannis’s performance (no. rebounds and 2PT scoring) per minute player during successive stints on court. This data could help us to determine how long Giannis could be expected to perform at his peak capacity for each stint he has on court (hint: his performance doesn’t decline over time). However, what if we wanted to see how many minutes Giannis should be playing per game to maximise performance?</p>
 <h3 id="i-number-of-rebounds-1">(i) Number of rebounds</h3>
 <div class="layout-chunk" data-layout="l-body">
 
@@ -2759,20 +2768,16 @@ $ n               &lt;int&gt; 68, 68, 68, 68, 68, 65, 51, 41, 15, 68, 6...</code
 <div class="layout-chunk" data-layout="l-body">
 <div class="sourceCode">
 <pre class="sourceCode r"><code class="sourceCode r"><span class='va'>perform_stint_game</span> <span class='op'>%&gt;%</span>
-  <span class='co'>#dplyr::mutate(stints_on_court = as.factor(stints_on_court)) %&gt;%</span>
-  <span class='co'>#dplyr::mutate(total_m = readr::parse_double(minute_cats)) %&gt;%</span>
-  <span class='fu'>dplyr</span><span class='fu'>::</span><span class='fu'><a href='https://dplyr.tidyverse.org/reference/filter.html'>filter</a></span><span class='op'>(</span><span class='va'>playerNames</span> <span class='op'>==</span> <span class='st'>"Giannis Antetokounmpo"</span><span class='op'>)</span> <span class='op'>%&gt;%</span>
   <span class='fu'>ggplot</span><span class='op'>(</span>data <span class='op'>=</span> <span class='va'>.</span>, <span class='fu'>aes</span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>total_minutes_game</span>, 
                        y <span class='op'>=</span> <span class='va'>n_rebounds</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>+</span>
   <span class='fu'>geom_smooth</span><span class='op'>(</span>colour <span class='op'>=</span> <span class='st'>"black"</span><span class='op'>)</span> <span class='op'>+</span>
   <span class='fu'>labs</span><span class='op'>(</span>x <span class='op'>=</span> <span class='st'>"Total minutes played (mins)"</span>,
-       y <span class='op'>=</span> <span class='st'>"No. of rebounds \n(per minute)"</span>,
-       title <span class='op'>=</span> <span class='st'>"Giannis Antetokounmpo gets fewer rebounds the longer he is on court"</span><span class='op'>)</span> 
+       y <span class='op'>=</span> <span class='st'>"No. of rebounds \n(per minute)"</span><span class='op'>)</span> 
 </code></pre>
 </div>
 <p><img src="do-nba-players-get-tired_files/figure-html5/giannis%20rebounds%20total%20minutes-1.png" width="624" /></p>
 </div>
-<p>Giannis gets plenty of rebounds throughout the game, but the rate at which he rebounds does decrease over the course of the game. After 30 minutes, he is still getting about 1.75 rebounds per minute. I don’t think there is anything to worry about in terms of a drop in performance here…</p>
+<p>Giannis gets plenty of rebounds throughout the game, but the rate at which he rebounds does decrease over the course of the game, but increases in the last 10 minutes. There is a small lull in rebounding (&lt;0.1 fewer rebounds) after 10 - 20 minutes on court versus his first 10 minutes. All things considered, Giannis’s rebounding rate is pretty consistent over an entire game.</p>
 <h3 id="ii-number-of-2pt-fgs-made-per-game-1">(ii) Number of 2PT FG’s made per game</h3>
 <div class="layout-chunk" data-layout="l-body">
 <div class="sourceCode">
@@ -2784,25 +2789,22 @@ $ n               &lt;int&gt; 68, 68, 68, 68, 68, 65, 51, 41, 15, 68, 6...</code
                        y <span class='op'>=</span> <span class='va'>n_2pt_made</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>+</span>
   <span class='fu'>geom_smooth</span><span class='op'>(</span>colour <span class='op'>=</span> <span class='st'>"black"</span><span class='op'>)</span> <span class='op'>+</span>
   <span class='fu'>labs</span><span class='op'>(</span>x <span class='op'>=</span> <span class='st'>"Total minutes played (mins)"</span>,
-       y <span class='op'>=</span> <span class='st'>"No. of 2PT FG's made \n(per minute)"</span>,
-       title <span class='op'>=</span> <span class='st'>"Giannis Antetokounmpo makes fewer 2PT's the longer he is on court"</span><span class='op'>)</span> 
+       y <span class='op'>=</span> <span class='st'>"No. of 2PT FG's made \n(per minute)"</span><span class='op'>)</span> 
 </code></pre>
 </div>
 <p><img src="do-nba-players-get-tired_files/figure-html5/giannis%202pt%20total%20minutes-1.png" width="624" data-distill-preview=1 /></p>
 </div>
-<p>Giannis can maintain his optimal 2PT scoring rates for about 20 minutes. Thereafter, the number of 2PT buckets scores declines steadily between 20 - 30 minutes played, albeit we must note that Giannis only scores about 0.2 buckets fewer after he has played 30 minutes than when he is fresh (0 - 10 minutes played).</p>
-<h1 id="what-have-we-leart-today">What have we leart today?</h1>
+<p>Giannis can clearly maintain his optimal 2PT scoring rate over the duration of an entire game.</p>
+<h1 id="what-r-skills-did-we-learn-today">What R skills did we learn today?</h1>
 <ul>
 <li>Download NBA play-by-play data from the NBA API</li>
-<li>Process the data using <code>tidyverse</code> cleaning packages (e.g. <code>dplyr</code>, <code>tidyr</code>, <code>stringr</code>)</li>
+<li>Process the data using common <code>tidyverse</code> cleaning packages (e.g. <code>dplyr</code>, <code>tidyr</code>, <code>stringr</code>)</li>
 <li>Create simple <code>ggplot</code> graphics to visualise player performance over time</li>
-<li>Exploratory analyses suggest that Giannis’s performance does decline slightly the longer he has been on court.</li>
 </ul>
 <h4 id="analytics-implications">Analytics implications:</h4>
-<p>The workflow presented above is how I approach exploratory data analysis (EDA) when building predictive models. I like to invest a lot of time into my EDA to get a really good understanding of the underlying data I am working with. In terms of model building, I like to, wherever possible, only include predictor variables that appear to have some justifiable relationship with whatever our response variable is. For example, if we were trying to build a model to predict how many points Giannis will score per game, our EDA here clearly shows that the number of minutes player per game MAY be an important predictor.</p>
+<p>The workflow presented above is how I approach exploratory data analysis (EDA) when building predictive models. I like to invest a lot of time into my EDA to get a really good understanding of the underlying data I am working with. In terms of model building, I like to only include predictor variables that appear to have some justifiable relationship with whatever our response variable is. Moreover, I like to have some idea of what form the function of y ~ x should take. For example, if we were trying to build a model to predict how many points Giannis will score per game, our EDA suggests that a linear relationship between minutes played per game and number of 2PT field goals <em>MAY</em> be appropriate. If we had found evidence that his 2PT scoring rate declines over time, we would then want to fit a non-linear trend for this relationship. There was a small dip in scoring rates in the 10 - 20 minute period, so we still may want a non-linear term in our model, but we could start with a linear term and build from there.</p>
 <h4 id="practical-implications">Practical implications:</h4>
-<p>Despite taking a very simplistic approach above, we can clearly see that Giannis’s performance declines over the course of a game. As fatigue sets in, his numbers drop, <em>slightly</em>. After 30 minutes played, his 2PT scoring rate declines to about 0.2 buckets fewer per minute than at the start of the game. This is hardly anything to be concerned about.</p>
-<p>We also saw that for each period Giannis spends on court, his performance tails off ever so slightly after about 7.5 minutes. Intuitively, the data indicates that to optimise Giannis’s performance, he should be used in short, frequent bursts on the court (&lt; 5-6 mins per stint on court).</p>
+<p>Giannis’s performance is consistent over the course of a game. There is no obvious drop-off in his rebounding rate or 2PT scoring rates, both with respect to how many minutes he plays in each game, and with respect to how many stints on court he has and how long each stint is. It would be interesting to see how he performs above 35+ minutes per game…</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>
 <!--radix_placeholder_article_footer-->
 <div class="article-footer">
