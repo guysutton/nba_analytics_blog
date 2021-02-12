@@ -7,7 +7,24 @@
     <description>Where data analytics meets the NBA
 </description>
     <generator>Distill</generator>
-    <lastBuildDate>Sun, 24 Jan 2021 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Mon, 01 Feb 2021 00:00:00 +0000</lastBuildDate>
+    <item>
+      <title>Do the Nets 'Big 3' play better together?</title>
+      <dc:creator>Guy Frederick Sutton</dc:creator>
+      <link>https://nbaanalyticsR.netlify.app/posts/2021-02-02-do-the-nets-big-3-play-better-together</link>
+      <description>Can Kevin Durant, James Harden and Kyrie Irving play together?</description>
+      <category>R</category>
+      <category>tidyverse</category>
+      <category>Data cleaning</category>
+      <category>ggplot2</category>
+      <category>stringr</category>
+      <category>function</category>
+      <category>Player performance</category>
+      <category>Brooklyn Nets</category>
+      <guid>https://nbaanalyticsR.netlify.app/posts/2021-02-02-do-the-nets-big-3-play-better-together</guid>
+      <pubDate>Mon, 01 Feb 2021 00:00:00 +0000</pubDate>
+      <media:content url="https://nbaanalyticsR.netlify.app/posts/2021-02-02-do-the-nets-big-3-play-better-together/do-the-nets-big-3-play-better-together_files/figure-html5/kd graph-1.png" medium="image" type="image/png" width="1248" height="768"/>
+    </item>
     <item>
       <title>Do NBA players get tired? A case-study of Giannis Antetokounmpo</title>
       <dc:creator>Guy Frederick Sutton</dc:creator>
@@ -21,7 +38,7 @@
       <category>Milwaukee Bucks</category>
       <category>Giannis Antetokounmpo</category>
       <guid>https://nbaanalyticsR.netlify.app/posts/2021-01-25-do-nba-players-get-tired</guid>
-      <pubDate>Sun, 24 Jan 2021 00:00:00 +0000</pubDate>
+      <pubDate>Mon, 25 Jan 2021 00:00:00 +0000</pubDate>
       <media:content url="https://nbaanalyticsR.netlify.app/posts/2021-01-25-do-nba-players-get-tired/do-nba-players-get-tired_files/figure-html5/giannis 2pt total minutes-1.png" medium="image" type="image/png" width="1248" height="768"/>
     </item>
     <item>

@@ -1,0 +1,17 @@
+base
+pacman
+tidyverse
+ggplot2
+tibble
+tidyr
+readr
+purrr
+dplyr
+stringr
+forcats
+janitor
+nbastatR
+future
+usethis
+devtools
+zoo

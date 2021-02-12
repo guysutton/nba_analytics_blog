@@ -1,5 +1,5 @@
 ---
-title: "Add player headshot to ggplot graph"
+title: "Add a player headshot to ggplot graph"
 description: |
   A short description of the post.
 author:
@@ -12,40 +12,155 @@ output:
 draft: true
 ---
 
-
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
 ```
 
+In my previous post, we made some basic `ggplot2` graphics visualising the performance of Giannis Antetokounmpo over the duration of a game. While this was a very simple graph, we can make this graph more aesthetically appealing and more informative. For example, we could spruce this up by adding a player headshot to the graph. I have looked around the web and I haven't been able to find a straightforward and modular approach to embedding images inside a graphic. 
 
-```{r, include = TRUE}
+In today's blog, we will learn how to:
+
+- (1) Scrape NBA player headshots from the web
+- (2) Add the headshot to a `ggplot2` graphic 
+- (3) Edit and format the headshot 
+
+# Load required packages 
+
+Today we will require the amazing `cowplot` package to embed our player headshots. 
+
+```{r load packages, include = TRUE, echo = TRUE, results = "hide"}
 if (!require("pacman")) install.packages("pacman")
 pacman::p_load(tidyverse, 
-               lubridate,
-               zoo,
+               #zoo,
                janitor,
                nbastatR,
                future,
-               grid,
-               jpeg,
-               gridExtra,
+               #grid,
+               #jpeg,
+               #gridExtra,
                cowplot,
+               devtools,
                magick)
 ```
 
-
-```{r}
-# Scrape headshot for player 
-playerImg.URL <- df_nba_player_dict %>%
-  dplyr::filter(namePlayer == "Jrue Holiday") %>%
-  dplyr::pull(urlPlayerPhoto)
-playerImg.URL
-playerImg <- rasterGrob(png::readPNG(RCurl::getURLContent(playerImg.URL)), 
-                                                    width=unit(0.15, "npc"), height=unit(0.15, "npc"))
-
+```{r set ggplot theme, include = FALSE, echo = TRUE, results = "hide"}
+# Set ggplot theme (makes nice plots)
+theme_set(theme_classic() +
+            theme(panel.border = element_rect(colour = "black", fill = NA),
+                  axis.text = element_text(colour = "black"),
+                  axis.title.x = element_text(margin = unit(c(2, 0, 0, 0), "mm")),
+                  axis.title.y = element_text(margin = unit(c(0, 4, 0, 0), "mm")),
+                  legend.position = "none"))
 ```
 
-```{r}
+# Downloading play-by-play data 
+
+I have written a custom helper function to download and clean play-by-play data from the `nbastatR` API package. Let's source this helper function from my GitHub and use it to download play-by-play data for the 2019-2020 season for the Milwaukee Bucks and clean the data frame. We then need to do some data processing and calculate summarises of the no. of 2PT and 3PT field goals made, no. of rebounds and no. of free throws made per minute played in each game, per player, over the whole season. 
+
+```{r, warning = FALSE, message = FALSE, echo = FALSE, results = "hide", cache = TRUE}
+# Load custom function to download raw data 
+devtools::source_url("https://raw.githubusercontent.com/guysutton/nba_analytics_blog/main/functions/function_get_pbp_lineups.R") 
+
+# Use custom function to download 2019-2020 data for Milwaukee Bucks
+pbp_data <- get_pbp_lineups(teams = "MIL", 
+                            years = 2020)
+
+# Calculate mean rebounds and 2PT's made per minute over the entire game 
+perform_stint_game <- pbp_data %>%
+  dplyr::ungroup() %>%
+  dplyr::filter(playerNames == "Giannis Antetokounmpo") %>%
+  dplyr::filter(namePlayer1 == "Giannis Antetokounmpo") %>%
+  dplyr::group_by(playerNames, 
+                  idGame, 
+                  stints_on_court,
+                  minute_cats, 
+                  .drop = FALSE) %>%
+  dplyr::summarise(
+    total_rebounds = sum(is_rebound, na.rm = TRUE),
+    total_2pt_made = sum(is_2pt_made, na.rm = TRUE),
+    total_2pt_attempt = sum(!is.na(is_2pt_made)),
+    perc_2pt_made = total_2pt_made / total_2pt_attempt,
+    total_3pt_made = sum(is_3pt_made, na.rm = TRUE),
+    total_3pt_attempt = sum(!is.na(is_3pt_made)),
+    perc_3pt_made = total_3pt_made / total_3pt_attempt,
+    total_ft_made  = sum(is_ft_made, na.rm = TRUE),
+    total_ft_attempt = sum(!is.na(is_ft_made)),
+    perc_ft_made = total_ft_made / total_ft_attempt) %>%
+  dplyr::ungroup() %>%
+  dplyr::mutate(minute_cats = stringr::str_pad(minute_cats, 
+                                               width = 3,
+                                               side = "left", 
+                                               pad = 0)) %>%
+  dplyr::arrange(playerNames, idGame, stints_on_court, minute_cats) %>%
+  dplyr::group_by(playerNames, idGame) %>%
+  dplyr::mutate(total_minutes_game = row_number()) %>%
+  dplyr::ungroup() %>%
+  # Now calculate mean summary for season (not per-game)
+  dplyr::group_by(playerNames, total_minutes_game, .drop = FALSE) %>%
+  dplyr::summarise(
+    n_rebounds       = mean(total_rebounds, na.rm = TRUE),
+    n_2pt_made       = mean(total_2pt_made, na.rm = TRUE),
+    n_3pt_made       = mean(total_3pt_made, na.rm = TRUE),
+    n_ft_attempt     = mean(total_ft_made, na.rm = TRUE),
+    sd_rebounds      = sd(total_rebounds, na.rm = TRUE),
+    sd_2pt_made      = sd(total_2pt_made, na.rm = TRUE),
+    sd_3pt_made      = sd(total_3pt_made, na.rm = TRUE),
+    sd_ft_attempt    = sd(total_ft_made, na.rm = TRUE),
+    n = n()) %>%
+  # Filter to keep only stints with n => 10 per player
+  dplyr::filter(!n < 10)
+```
+
+# Making the `ggplot2` graph 
+
+Let's now reproduce the `ggplot2` graph of interest. 
+
+```{r giannis 2pt total minutes, warning = FALSE, message = FALSE, echo = TRUE, preview = TRUE}
+perform_stint_game %>%
+  ggplot(data = ., aes(x = total_minutes_game, 
+                       y = n_2pt_made)) +
+  geom_smooth(colour = "black") +
+  labs(x = "Total minutes played (mins)",
+       y = "No. of 2PT FG's made \n(per minute)") 
+```
+
+# Download player headshot from the web
+
+To download player headshots, we need to look within the NBA player data dictionary (`df_nba_player_dict`) stored in the `nbastatR` package. The data dictionary has valuable information about each player to ever play in the NBA, including a column containing a URL for player headshots (`urlPlayerHeadshot`). 
+
+```{r echo = TRUE}
+head(df_nba_player_dict)
+```
+
+To extract our headshot, we can use a simple `filter` statement to find the row with the information for Giannis. Thereafter, we need to extract the URL for the headshot as a character vector. This is a prime use-case for `dplyr::pull`. 
+
+```{r echo = TRUE}
+# Use dplyr::pull to get URL for headshot as chr vector  
+headshotURL <- df_nba_player_dict %>%
+  dplyr::filter(namePlayer == "Giannis Antetokounmpo") %>%
+  dplyr::pull(urlPlayerPhoto)
+headshotURL
+```
+
+# Embed player headshot 
+
+```{r add headshot basic, warning = FALSE, message = FALSE, echo = TRUE, preview = TRUE}
+# Reproduce the graphic of interest
+performance_graph <- perform_stint_game %>%
+  ggplot(data = ., aes(x = total_minutes_game, 
+                       y = n_2pt_made)) +
+  geom_smooth(colour = "black") +
+  labs(x = "Total minutes played (mins)",
+       y = "No. of 2PT FG's made \n(per minute)") 
+
+# Now add headshot
+ggdraw() + 
+  draw_plot(performance_graph) +
+  draw_image(
+    headshotURL)
+```
+
+```{r include = FALSE}
 graph1 <- perform_stint_min %>%
   dplyr::mutate(stints_on_court = as.factor(stints_on_court)) %>%
   dplyr::mutate(minute_cats = readr::parse_double(minute_cats)) %>%
@@ -75,3 +190,6 @@ ggdraw() +
     width = 0.15
   )
 ```
+
+#playerImg <- rasterGrob(png::readPNG(RCurl::getURLContent(playerImg.URL)), 
+#                                                    width=unit(0.15, "npc"), #height=unit(0.15, "npc"))

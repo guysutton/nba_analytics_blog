@@ -1,0 +1,225 @@
+---
+title: "Do the Nets 'Big 3' play better together?"
+description: |
+  Can Kevin Durant, James Harden and Kyrie Irving play together? 
+author:
+  - name: Guy Frederick Sutton
+    url: {}
+date: 02-02-2021
+output:
+  distill::distill_article:
+    self_contained: false
+draft: false
+base_url: https://nbaanalyticsR.netlify.app/
+categories:
+  - R
+  - tidyverse
+  - Data cleaning
+  - ggplot2
+  - stringr
+  - function
+  - Player performance
+  - Brooklyn Nets
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+The Brooklyn Nets have established one of the most exciting offensive line-ups in NBA history. By signing Kevin Durant and later James Harden to a team already blessed to host Kyrie Irving, the Nets have created the 'Big 3'. Much debate has ensued about whether the Nets are a genuine championship-level team given their lack of any real semblance of a defense, or whether the Big 3 will be able to play together on the same team. This got me thinking: how well do KD, Kyrie and Harden play when they are on the court together versus when they are the sole Big 3 player on court.
+
+# Load required packages 
+
+```{r load packages, include = TRUE, echo = TRUE, results = "hide"}
+if (!require("pacman")) install.packages("pacman")
+pacman::p_load(tidyverse, 
+               janitor,
+               nbastatR,
+               future,
+               devtools)
+```
+
+```{r set ggplot theme, include = FALSE, echo = TRUE, results = "hide"}
+# Set ggplot theme (makes nice plots)
+theme_set(theme_classic() +
+            theme(panel.border = element_rect(colour = "black", fill = NA),
+                  axis.text = element_text(colour = "black"),
+                  axis.title.x = element_text(margin = unit(c(2, 0, 0, 0), "mm")),
+                  axis.title.y = element_text(margin = unit(c(0, 4, 0, 0), "mm")),
+                  legend.position = "none"))
+```
+
+# Downloading play-by-play data 
+
+I have written a custom helper function to download and clean play-by-play data from the `nbastatR` API package. Let's source this helper function from my GitHub and use it to download play-by-play data for the 2020-2021 season for the Brooklyn Nets and clean the data frame. This function is based on code written on the amazing [NBA blog by Ramiro Bentes](https://nbainrstats.netlify.app/post/adding-lineups-to-nba-play-by-play-data/). I take no credit for writing any of this code whatsoever - I just turned it into a function instead of having to copy-paste the raw code each time I want to use it. 
+
+```{r, warning = FALSE, message = FALSE, echo = TRUE, results = "hide", cache = TRUE}
+# Load custom function to download raw data 
+devtools::source_url("https://raw.githubusercontent.com/guysutton/nba_analytics_blog/main/functions/function_get_pbp_lineups.R") 
+
+# Use custom function to download 2020-2021 data for Brooklyn Nets
+pbp_data <- get_pbp_lineups(teams = "BKN", years = 2021)
+```
+
+# Defining each play by who is on court
+
+Before we start calculating any summary statistics, we need to categorise each play in terms of which of the 'Big 3' were on court. The play-by-play data we downloaded above has a column containing the lineups on court for each play (`lineups`). As such, we can combine `dplyr::case_when` and `stringr::str_detect` to search through the lineups for each play for the names of the Big 3 and create a new categorical variable telling us which combination of the Big 3 were on court for each play. 
+
+```{r define big3 lineups, warning = FALSE, message = FALSE, echo = TRUE}
+perform_stint_game <- pbp_data %>%
+  dplyr::ungroup() %>%
+  # numberEvent is a unique ID for each play
+  dplyr::group_by(playerNames, 
+                  idGame, 
+                  numberEvent,
+                  .drop = FALSE) %>%
+  # Add column indicating who was on court 
+  dplyr::mutate(players_on_court = dplyr::case_when(
+    # Find plays where all three Big 3 are on court
+    stringr::str_detect(lineups, "Kevin Durant") &
+      stringr::str_detect(lineups, "James Harden") &
+      stringr::str_detect(lineups, "Kyrie Irving") ~ "Big 3",
+    # Find play when only KD and Harden are on court
+    stringr::str_detect(lineups, "Kevin Durant") &
+      stringr::str_detect(lineups, "James Harden") &
+      !stringr::str_detect(lineups, "Kyrie Irving") ~ "KD + JH",
+    # Find plays when only KD and Kyrie are on court 
+    stringr::str_detect(lineups, "Kevin Durant") &
+      !stringr::str_detect(lineups, "James Harden") &
+      stringr::str_detect(lineups, "Kyrie Irving") ~ "KD + KI",
+    # Find players when only Harden and Kyrie are on court
+    !stringr::str_detect(lineups, "Kevin Durant") &
+      stringr::str_detect(lineups, "James Harden") &
+      stringr::str_detect(lineups, "Kyrie Irving") ~ "JH + KI",
+    # Find plays with only KD
+    stringr::str_detect(lineups, "Kevin Durant") &
+      !stringr::str_detect(lineups, "James Harden") &
+      !stringr::str_detect(lineups, "Kyrie Irving") ~ "KD only",
+    # Find plays with only Harden
+    !stringr::str_detect(lineups, "Kevin Durant") &
+      stringr::str_detect(lineups, "James Harden") &
+      !stringr::str_detect(lineups, "Kyrie Irving") ~ "JH only",
+    # Find plays with only Kyrie
+    !stringr::str_detect(lineups, "Kevin Durant") &
+      !stringr::str_detect(lineups, "James Harden") &
+      stringr::str_detect(lineups, "Kyrie Irving") ~ "KI only",
+    # Find plays with none of KD, Harden or Kyrie on court
+    !stringr::str_detect(lineups, "Kevin Durant") &
+      !stringr::str_detect(lineups, "James Harden") &
+      !stringr::str_detect(lineups, "Kyrie Irving") ~ "None"))
+```
+
+# Write function to summarise player performance 
+
+Now that we know who was on court for each play, let's summarise player performance (per minute) to determine whether the KD, Harden and/or Kyrie play better alone, or with other members of the Big 3 on court too. We want to look at the individual performance for each of KD, Harden and Kyrie (and later we may be interested in looking in the performance of other Nets players with and without the Big 3), so let's write a quick function to calculate performance. Here, our measure of performance is going to be the no. of points scored (/minute). 
+
+Let's pass a `player` argument to our function so that we only have to specify the name of the player for which we want to calculate summary statistics and the function will take care of the rest. 
+
+```{r function calc perform, warning = FALSE, message = FALSE, echo = TRUE}
+# Write function to calculate free throws and 2/3PT's made per minute over the entire game 
+calc_performance_min <- function(player){
+
+  perform_stint_game %>%
+  dplyr::ungroup() %>%
+  dplyr::filter(playerNames %in% {{ player }}) %>%
+  dplyr::filter(namePlayer1 %in% {{ player }}) %>%
+  dplyr::group_by(playerNames, 
+                  idGame, 
+                  players_on_court,
+                  minute_cats, 
+                  .drop = FALSE) %>%
+  # Summarise player performance per minute (for each game)
+  dplyr::summarise(
+    total_2pt_made = sum(is_2pt_made, na.rm = TRUE),
+    total_3pt_made = sum(is_3pt_made, na.rm = TRUE),
+    total_ft_made  = sum(is_ft_made, na.rm = TRUE),
+    total_pts_scored = sum((total_2pt_made * 2) +
+                             (total_3pt_made * 3) +
+                             (total_ft_made * 1))) %>%
+  dplyr::ungroup()
+  
+} 
+```
+
+# Visualise player performance 
+
+Below, we will use a violin plot to visualise player performance. Basically, a violin plot allows us to visualise the distribution of points scored per minute for different player combinations. 
+
+### (i) Kevin Durant 
+
+```{r kd graph, warning = FALSE, message = FALSE, echo = TRUE, preview = TRUE}
+(perform_per_min_kd <- calc_performance_min(player = c("Kevin Durant")) %>%
+  ggplot(data = ., aes(x = players_on_court, 
+                       y = total_pts_scored,
+                       fill = players_on_court)) +
+  scale_fill_grey() +
+  labs(x = "Players on court",
+       y = "Total pts scored (per minute)") +
+  geom_violin() +
+  coord_flip())
+
+
+```
+
+KD's performance is relatively consistent irrespective of who is on court, including James Harden and Kyrie Irving. If anything KD seems to perform slightly better when he plays with James Harden, as indicated by fewer minutes with 0 points scored and slightly more minutes with 2 and 3 points scored, than when he plays with Kyrie. 
+
+### (ii) Kyrie Irving
+
+```{r kyrie graph, warning = FALSE, message = FALSE, echo = TRUE}
+(perform_per_min_kyrie <- calc_performance_min(player = c("Kyrie Irving")) %>%
+   # Seems like there are a handful of records of Kyrie scoring more than 10 
+   # pts per minute - this doesn't overly realistic - or may be an artifact 
+   # of lots of fouls in the last minute, so I have exlcluded these records 
+  dplyr::filter(total_pts_scored < 10) %>%
+  ggplot(data = ., aes(x = players_on_court, 
+                       y = total_pts_scored,
+                       fill = players_on_court)) +
+  labs(x = "Players on court",
+       y = "Total pts scored (per minute)") +
+  scale_fill_grey() +
+  geom_violin() + 
+  coord_flip())
+```
+
+Again, Kyrie seems to be extremely consistent, irrespective of the team lineup. 
+
+### (iii) James Harden
+
+```{r harden graph, warning = FALSE, message = FALSE, echo = TRUE}
+(perform_per_min_harden <- calc_performance_min(player = c("James Harden")) %>%
+  ggplot(data = ., aes(x = players_on_court, 
+                       y = total_pts_scored,
+                       fill = players_on_court)) +
+  scale_fill_grey() +
+  labs(x = "Players on court",
+       y = "Total pts scored (per minute)") +
+  geom_violin() + 
+  coord_flip())
+```
+
+Finally... James Harden seems to perform a little differently, depending on whether KD and/or Kyrie Irving are on court at the same time. Two things stand out. Firstly, James Harden seems to have more minutes scoring 0 points when KD and Kyrie are both playing. This makes sense - at the time of writing this article, Harden leads the league in assists per game (11 per game!!!). When the Big 3 are on the court together, Harden is the distributor. Secondly, Harden turns up the heat when he is playing without KD and Kyrie. He has quite a few minute bouts of scoring 5 and 6 pts when playing alone, which is much less likely to occur when KD and/or Kyrie are playing. 
+
+But, what about the rest of the Nets lineup? How do the Big 3 impact scoring by their teammates? Let's take a look at one of my favorite players in the league - Joe Harris. 
+
+### (iv) Joe Harris
+
+```{r harris graph, warning = FALSE, message = FALSE, echo = TRUE}
+(perform_per_min_harris <- calc_performance_min(player = c("Joe Harris")) %>%
+  ggplot(data = ., aes(x = players_on_court, 
+                       y = total_pts_scored,
+                       fill = players_on_court)) +
+  scale_fill_grey() +
+  labs(x = "Players on court",
+       y = "Total pts scored (per minute)") +
+  geom_violin() + 
+  coord_flip())
+```
+
+Unsurprisingly, Joe Harris has many more minutes without scoring when the Big 3 are all on the court than when the Big 3 aren't playing. He seems to score consistently when any 2 of KD, Harden and Kyrie are playing. A noticeable drop in scoring for Joe occurs when only Kyrie is on court... 
+
+# Take home
+
+At this early stage in the season, I don't see any evidence to suggest the Big 3 impede each others play. Across the board, KD, Harden and Kyrie seem to play as well (in terms of points scored per minute) with or without other members of the Big 3 on court. No surprises there. These guys are serious professionals. One caveat to this analysis is that the Big 3 have only played a handful of games together so far. It will be very interesting to see what this same analysis produces at the end of the season. 
+
+
